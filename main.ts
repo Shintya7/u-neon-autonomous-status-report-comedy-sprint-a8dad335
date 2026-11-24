@@ -10,23 +10,44 @@ const LINE =
 
 const OUTPUT_PATH = process.env.OUTPUT_PATH ?? "/output/entry.txt";
 
-// The gate allows 1-200 characters; validate exactly that bound.
-function validateLine(line: string): void {
+// The gate allows 1-200 characters; each rule is its own named check.
+function checkLength(line: string): void {
   if (line.length < 1 || line.length > 200) {
     throw new Error(`line must be 1-200 characters, got ${line.length}`);
   }
+}
+
+function checkSingleLine(line: string): void {
   if (line.includes("\n") || line.includes("\r")) {
     throw new Error("line must be a single line");
   }
+}
+
+function checkNoControlChars(line: string): void {
   if (/[\u0000-\u001f\u007f]/.test(line)) {
     throw new Error("line must not contain control characters");
   }
+}
+
+function checkNotOnlyWhitespace(line: string): void {
   if (line.trim().length === 0) {
     throw new Error("line must not be only whitespace");
   }
+}
+
+function checkContainsLetters(line: string): void {
   if (!/[A-Za-z]/.test(line)) {
     throw new Error("line must contain letters");
   }
+}
+
+// validateLine() runs every rule in order and reports the first failure.
+function validateLine(line: string): void {
+  checkLength(line);
+  checkSingleLine(line);
+  checkNoControlChars(line);
+  checkNotOnlyWhitespace(line);
+  checkContainsLetters(line);
 }
 
 function main(): void {
